@@ -265,6 +265,7 @@
   <script>
     const config = window.MHCF_SUPABASE_CONFIG || {};
     const ready = Boolean(config.url && config.anonKey && window.supabase);
+    const localMode = !ready && Boolean(config.localStorageEnabled);
     const client = ready ? window.supabase.createClient(config.url, config.anonKey) : null;
     const setupWarning = document.getElementById('setup-warning');
     const loginPanel = document.getElementById('login-panel');
@@ -276,10 +277,42 @@
     const rows = document.getElementById('record-rows');
     let profiles = [];
 
-    if (!ready) {
+    function getLocalProfiles() {
+      try {
+        const raw = window.localStorage.getItem('mhcf_student_profiles');
+        return raw ? JSON.parse(raw) : [];
+      } catch (error) {
+        console.error('Failed to read local profiles:', error);
+        return [];
+      }
+    }
+
+    function setLocalSession(email) {
+      window.localStorage.setItem('mhcf_admin_session', JSON.stringify({ email, loggedInAt: Date.now() }));
+    }
+
+    function getLocalSession() {
+      try {
+        const raw = window.localStorage.getItem('mhcf_admin_session');
+        return raw ? JSON.parse(raw) : null;
+      } catch (error) {
+        console.error('Failed to read local session:', error);
+        return null;
+      }
+    }
+
+    if (!ready && !localMode) {
       setupWarning.hidden = false;
       document.getElementById('login-button').disabled = true;
       loginMessage.textContent = 'Admin sign-in will be available after database setup.';
+    } else if (localMode) {
+      setupWarning.hidden = true;
+      document.getElementById('login-button').disabled = false;
+      loginMessage.textContent = `Demo mode is active. Use ${config.defaultAdminEmail} / ${config.defaultAdminPassword}`;
+      const savedSession = getLocalSession();
+      if (savedSession) {
+        setSession({ user: { email: savedSession.email } });
+      }
     } else {
       client.auth.getSession().then(({ data }) => setSession(data.session));
       client.auth.onAuthStateChange((_event, session) => {
@@ -289,13 +322,25 @@
 
     document.getElementById('admin-login-form').addEventListener('submit', async event => {
       event.preventDefault();
-      if (!client) return;
       loginMessage.classList.remove('error');
       loginMessage.textContent = 'Signing in...';
-      const { error } = await client.auth.signInWithPassword({
-        email: document.getElementById('admin-email').value.trim(),
-        password: document.getElementById('admin-password').value
-      });
+
+      const email = document.getElementById('admin-email').value.trim();
+      const password = document.getElementById('admin-password').value;
+
+      if (localMode) {
+        if (email === config.defaultAdminEmail && password === config.defaultAdminPassword) {
+          setLocalSession(email);
+          setSession({ user: { email } });
+          return;
+        }
+        loginMessage.classList.add('error');
+        loginMessage.textContent = 'Invalid demo admin credentials.';
+        return;
+      }
+
+      if (!client) return;
+      const { error } = await client.auth.signInWithPassword({ email, password });
       if (error) {
         loginMessage.classList.add('error');
         loginMessage.textContent = 'Sign-in failed. Check your credentials and admin approval.';
@@ -316,6 +361,14 @@
     async function loadProfiles() {
       recordCount.textContent = 'Loading profiles...';
       adminMessage.classList.remove('error');
+
+      if (localMode) {
+        profiles = getLocalProfiles().filter(profile => profile.consent !== false);
+        adminMessage.textContent = '';
+        renderProfiles();
+        return;
+      }
+
       const { data, error } = await client
         .from('student_profiles')
         .select('id, created_at, full_name, mobile_number, board_percentage, cet_percentile, category, gender, preferred_region')
@@ -372,6 +425,15 @@
     searchInput.addEventListener('input', renderProfiles);
     document.getElementById('refresh-button').addEventListener('click', loadProfiles);
     document.getElementById('logout-button').addEventListener('click', async () => {
+      if (localMode) {
+        window.localStorage.removeItem('mhcf_admin_session');
+        profiles = [];
+        rows.replaceChildren();
+        loginPanel.hidden = false;
+        adminPanel.hidden = true;
+        loginMessage.textContent = `Demo mode is active. Use ${config.defaultAdminEmail} / ${config.defaultAdminPassword}`;
+        return;
+      }
       await client.auth.signOut();
       profiles = [];
       rows.replaceChildren();

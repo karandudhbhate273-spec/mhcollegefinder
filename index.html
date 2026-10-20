@@ -673,6 +673,26 @@
     const databaseClient = databaseReady
       ? window.supabase.createClient(databaseConfig.url, databaseConfig.anonKey)
       : null;
+    const localStorageMode = !databaseReady && Boolean(databaseConfig.localStorageEnabled);
+
+    function getLocalProfiles() {
+      try {
+        const raw = window.localStorage.getItem('mhcf_student_profiles');
+        return raw ? JSON.parse(raw) : [];
+      } catch (error) {
+        console.error('Failed to read local profiles:', error);
+        return [];
+      }
+    }
+
+    function saveLocalProfiles(profiles) {
+      try {
+        window.localStorage.setItem('mhcf_student_profiles', JSON.stringify(profiles));
+      } catch (error) {
+        console.error('Failed to save local profiles:', error);
+      }
+    }
+
     async function loadColleges() {
       const container = document.getElementById('college-list');
       try {
@@ -851,10 +871,6 @@
       event.preventDefault();
       const status = document.getElementById('submit-status');
       const submitButton = document.getElementById('btn-predict');
-      if (!databaseClient) {
-        status.textContent = 'Online profile submission is not configured yet. You can still search the directory.';
-        return;
-      }
 
       submitButton.disabled = true;
       status.textContent = 'Submitting your profile...';
@@ -869,15 +885,38 @@
         consent: document.getElementById('data-consent').checked
       };
 
-      const { error } = await databaseClient.from('student_profiles').insert(profile);
-      submitButton.disabled = false;
-      if (error) {
-        status.textContent = 'Your search was not saved. Please try again or use the directory filters.';
-        console.error('Student profile submission failed:', error.message);
+      if (!profile.consent) {
+        submitButton.disabled = false;
+        status.textContent = 'Please agree to share your details before submitting.';
         return;
       }
 
-      status.textContent = 'Profile submitted. Your matching colleges are shown below.';
+      if (databaseClient) {
+        const { error } = await databaseClient.from('student_profiles').insert(profile);
+        submitButton.disabled = false;
+        if (error) {
+          status.textContent = 'Your search was not saved. Please try again or use the directory filters.';
+          console.error('Student profile submission failed:', error.message);
+          return;
+        }
+        status.textContent = 'Profile submitted. Your matching colleges are shown below.';
+      } else if (localStorageMode) {
+        const profiles = getLocalProfiles();
+        const entry = {
+          id: `local-${Date.now()}`,
+          created_at: new Date().toISOString(),
+          ...profile
+        };
+        profiles.unshift(entry);
+        saveLocalProfiles(profiles);
+        submitButton.disabled = false;
+        status.textContent = 'Profile saved locally. Admin inbox is now active for this demo mode.';
+      } else {
+        submitButton.disabled = false;
+        status.textContent = 'Online profile submission is not configured yet. You can still search the directory.';
+        return;
+      }
+
       studentProfile = {
         percentile: profile.cet_percentile,
         category: profile.category,
