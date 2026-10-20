@@ -265,6 +265,41 @@
       margin: 0.25rem 0 0.75rem;
     }
 
+    .consent-label {
+      align-items: flex-start;
+      color: var(--text-muted);
+      display: flex;
+      font-size: 0.78rem;
+      gap: 0.55rem;
+      letter-spacing: 0;
+      line-height: 1.45;
+      margin: 0.75rem 0;
+      text-transform: none;
+    }
+
+    .consent-label input {
+      accent-color: var(--accent-cyan);
+      flex: 0 0 auto;
+      margin-top: 0.15rem;
+      width: auto;
+    }
+
+    .submit-status {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      margin-top: 0.65rem;
+    }
+
+    .admin-nav-link {
+      color: var(--accent-cyan);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .admin-nav-link:hover { text-decoration: underline; }
+
     .btn-secondary {
       background: transparent;
       border: 1px solid var(--border-color);
@@ -482,6 +517,7 @@
       <div class="nav-badges">
         <span class="badge-tag">Maharashtra CAP 2026–27</span>
         <span class="badge-tag">387 participating institutes</span>
+        <a class="admin-nav-link" href="./admin.html">Admin</a>
       </div>
     </div>
   </header>
@@ -565,9 +601,14 @@
             </select>
           </div>
 
-          <p class="privacy-note">Your details stay in this browser. CET percentile, category, gender, and region are compared with CAP-IV cutoffs; this is a historical guide, not an admission guarantee. Board percentage is not used yet.</p>
+          <label class="consent-label" for="data-consent">
+            <input type="checkbox" id="data-consent" required>
+            <span>I agree to share these details with MhCollegeFinder so the admin can contact me about my college search.</span>
+          </label>
+          <p class="privacy-note">Only submitted profiles with your consent are sent to the college-finder database. CET percentile, category, gender, and region are compared with historical CAP-IV cutoffs; this is not an admission guarantee.</p>
+          <p class="submit-status" id="submit-status" role="status" aria-live="polite"></p>
           <button type="submit" class="btn-primary" id="btn-predict">
-            <span>Browse Colleges</span>
+            <span>Submit Profile & Find Colleges</span>
           </button>
         </form>
       </div>
@@ -622,9 +663,16 @@
   </footer>
 
   <!-- Application Script Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-config.js"></script>
   <script>
     let collegesData = [];
     let studentProfile = null;
+    const databaseConfig = window.MHCF_SUPABASE_CONFIG || {};
+    const databaseReady = Boolean(databaseConfig.url && databaseConfig.anonKey && window.supabase);
+    const databaseClient = databaseReady
+      ? window.supabase.createClient(databaseConfig.url, databaseConfig.anonKey)
+      : null;
     async function loadColleges() {
       const container = document.getElementById('college-list');
       try {
@@ -799,12 +847,41 @@
       });
     }
 
-    document.getElementById('predictor-form').addEventListener('submit', function(event) {
+    document.getElementById('predictor-form').addEventListener('submit', async function(event) {
       event.preventDefault();
-      studentProfile = {
-        percentile: Number(document.getElementById('cet-percentile').value),
+      const status = document.getElementById('submit-status');
+      const submitButton = document.getElementById('btn-predict');
+      if (!databaseClient) {
+        status.textContent = 'Online profile submission is not configured yet. You can still search the directory.';
+        return;
+      }
+
+      submitButton.disabled = true;
+      status.textContent = 'Submitting your profile...';
+      const profile = {
+        full_name: document.getElementById('student-name').value.trim(),
+        mobile_number: document.getElementById('student-phone').value.trim(),
+        board_percentage: Number(document.getElementById('board-percentage').value),
+        cet_percentile: Number(document.getElementById('cet-percentile').value),
         category: document.getElementById('caste-category').value,
-        gender: document.getElementById('student-gender').value
+        gender: document.getElementById('student-gender').value,
+        preferred_region: document.getElementById('target-region').value,
+        consent: document.getElementById('data-consent').checked
+      };
+
+      const { error } = await databaseClient.from('student_profiles').insert(profile);
+      submitButton.disabled = false;
+      if (error) {
+        status.textContent = 'Your search was not saved. Please try again or use the directory filters.';
+        console.error('Student profile submission failed:', error.message);
+        return;
+      }
+
+      status.textContent = 'Profile submitted. Your matching colleges are shown below.';
+      studentProfile = {
+        percentile: profile.cet_percentile,
+        category: profile.category,
+        gender: profile.gender
       };
       document.getElementById('division-filter').value = document.getElementById('target-region').value;
       document.getElementById('results-heading').textContent = 'Best CAP Cutoff Matches';

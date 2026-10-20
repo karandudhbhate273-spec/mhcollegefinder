@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Admin Inbox - MhCollegeFinder</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --panel: #111827;
+      --line: rgba(255, 255, 255, 0.1);
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --accent: #22d3ee;
+      --danger: #fca5a5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--accent); }
+
+    .topbar {
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem clamp(1rem, 4vw, 2.5rem);
+    }
+
+    .brand {
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .brand span { color: var(--accent); }
+
+    .topbar a:last-child {
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+
+    main {
+      margin: 0 auto;
+      max-width: 1320px;
+      padding: 2rem clamp(1rem, 4vw, 2.5rem) 3rem;
+    }
+
+    h1 {
+      font-size: 1.7rem;
+      margin: 0;
+    }
+
+    .intro {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0.5rem 0 1.5rem;
+      max-width: 760px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1.25rem;
+    }
+
+    .warning {
+      border-left: 3px solid #fbbf24;
+      color: #fde68a;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .warning[hidden],
+    .admin-panel[hidden] { display: none; }
+
+    .login-panel { max-width: 440px; }
+
+    .field { margin-bottom: 1rem; }
+
+    label {
+      color: var(--muted);
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 650;
+      margin-bottom: 0.35rem;
+    }
+
+    input {
+      background: #0f172a;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--text);
+      font: inherit;
+      min-height: 42px;
+      padding: 0.55rem 0.7rem;
+      width: 100%;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      outline: 2px solid rgba(34, 211, 238, 0.18);
+    }
+
+    button {
+      background: var(--accent);
+      border: 0;
+      border-radius: 4px;
+      color: #071018;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      min-height: 40px;
+      padding: 0.55rem 0.9rem;
+    }
+
+    button:disabled { cursor: not-allowed; opacity: 0.55; }
+
+    .secondary-button {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+
+    .message {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      margin: 0.85rem 0 0;
+      min-height: 1.25rem;
+    }
+
+    .message.error { color: var(--danger); }
+
+    .toolbar {
+      align-items: end;
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: minmax(160px, 1fr) minmax(220px, 2fr) auto auto;
+      margin-bottom: 1rem;
+    }
+
+    .record-count {
+      color: var(--muted);
+      font-size: 0.83rem;
+      padding-bottom: 0.65rem;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      overflow: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      min-width: 980px;
+      text-align: left;
+      width: 100%;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      font-size: 0.82rem;
+      padding: 0.75rem;
+      vertical-align: top;
+    }
+
+    th {
+      background: #0f172a;
+      color: var(--muted);
+      font-size: 0.72rem;
+      position: sticky;
+      text-transform: uppercase;
+      top: 0;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    .empty-cell { color: var(--muted); text-align: center; }
+
+    @media (max-width: 700px) {
+      main { padding-top: 1.4rem; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .record-count { grid-column: 1 / -1; }
+      .toolbar .field { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./index.html">Mh<span>CollegeFinder</span></a>
+    <a href="./index.html">Student finder</a>
+  </header>
+
+  <main>
+    <h1>Student enquiry inbox</h1>
+    <p class="intro">Only approved admin accounts can view submitted profiles. Student records are private and require explicit consent before submission.</p>
+
+    <section class="panel warning" id="setup-warning" hidden>
+      Database connection is not configured. Add the Supabase project URL and public anon key in <code>supabase-config.js</code>, then apply <a href="./supabase-setup.sql">the database setup SQL</a>.
+    </section>
+
+    <section class="panel login-panel" id="login-panel">
+      <h2>Admin sign in</h2>
+      <form id="admin-login-form">
+        <div class="field">
+          <label for="admin-email">Email</label>
+          <input id="admin-email" type="email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="admin-password">Password</label>
+          <input id="admin-password" type="password" autocomplete="current-password" required>
+        </div>
+        <button id="login-button" type="submit">Sign in</button>
+      </form>
+      <p class="message" id="login-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="admin-panel" id="admin-panel" hidden>
+      <div class="toolbar">
+        <div class="record-count" id="record-count" aria-live="polite">Loading profiles...</div>
+        <div class="field">
+          <label for="record-search">Search profiles</label>
+          <input id="record-search" type="search" placeholder="Name, phone, category, or region">
+        </div>
+        <button class="secondary-button" id="refresh-button" type="button">Refresh</button>
+        <button class="secondary-button" id="logout-button" type="button">Sign out</button>
+      </div>
+      <p class="message" id="admin-message" role="status" aria-live="polite"></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Mobile</th>
+              <th>CET percentile</th>
+              <th>12th percentage</th>
+              <th>Category</th>
+              <th>Gender</th>
+              <th>Preferred region</th>
+              <th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody id="record-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-config.js"></script>
+  <script>
+    const config = window.MHCF_SUPABASE_CONFIG || {};
+    const ready = Boolean(config.url && config.anonKey && window.supabase);
+    const client = ready ? window.supabase.createClient(config.url, config.anonKey) : null;
+    const setupWarning = document.getElementById('setup-warning');
+    const loginPanel = document.getElementById('login-panel');
+    const adminPanel = document.getElementById('admin-panel');
+    const loginMessage = document.getElementById('login-message');
+    const adminMessage = document.getElementById('admin-message');
+    const recordCount = document.getElementById('record-count');
+    const searchInput = document.getElementById('record-search');
+    const rows = document.getElementById('record-rows');
+    let profiles = [];
+
+    if (!ready) {
+      setupWarning.hidden = false;
+      document.getElementById('login-button').disabled = true;
+      loginMessage.textContent = 'Admin sign-in will be available after database setup.';
+    } else {
+      client.auth.getSession().then(({ data }) => setSession(data.session));
+      client.auth.onAuthStateChange((_event, session) => {
+        window.setTimeout(() => { void setSession(session); }, 0);
+      });
+    }
+
+    document.getElementById('admin-login-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!client) return;
+      loginMessage.classList.remove('error');
+      loginMessage.textContent = 'Signing in...';
+      const { error } = await client.auth.signInWithPassword({
+        email: document.getElementById('admin-email').value.trim(),
+        password: document.getElementById('admin-password').value
+      });
+      if (error) {
+        loginMessage.classList.add('error');
+        loginMessage.textContent = 'Sign-in failed. Check your credentials and admin approval.';
+      }
+    });
+
+    async function setSession(session) {
+      if (!session) {
+        loginPanel.hidden = false;
+        adminPanel.hidden = true;
+        return;
+      }
+      loginPanel.hidden = true;
+      adminPanel.hidden = false;
+      await loadProfiles();
+    }
+
+    async function loadProfiles() {
+      recordCount.textContent = 'Loading profiles...';
+      adminMessage.classList.remove('error');
+      const { data, error } = await client
+        .from('student_profiles')
+        .select('id, created_at, full_name, mobile_number, board_percentage, cet_percentile, category, gender, preferred_region')
+        .order('created_at', { ascending: false });
+      if (error) {
+        profiles = [];
+        recordCount.textContent = 'Profiles unavailable';
+        adminMessage.classList.add('error');
+        adminMessage.textContent = 'This account may not be approved for admin access, or database policies are not configured.';
+        renderProfiles();
+        return;
+      }
+      profiles = data || [];
+      adminMessage.textContent = '';
+      renderProfiles();
+    }
+
+    function renderProfiles() {
+      const query = searchInput.value.trim().toLowerCase();
+      const filtered = profiles.filter(profile => [
+        profile.full_name,
+        profile.mobile_number,
+        profile.category,
+        profile.gender,
+        profile.preferred_region
+      ].some(value => String(value).toLowerCase().includes(query)));
+      recordCount.textContent = `${filtered.length} of ${profiles.length} student profiles`;
+      rows.replaceChildren();
+
+      if (filtered.length === 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 8;
+        cell.className = 'empty-cell';
+        cell.textContent = profiles.length ? 'No profiles match this search.' : 'No consented profiles have been submitted.';
+        row.appendChild(cell);
+        rows.appendChild(row);
+        return;
+      }
+
+      filtered.forEach(profile => {
+        const row = document.createElement('tr');
+        const submitted = profile.created_at ? new Date(profile.created_at).toLocaleString() : 'Unknown';
+        [profile.full_name, profile.mobile_number, `${profile.cet_percentile}%`, `${profile.board_percentage}%`, profile.category, profile.gender, profile.preferred_region, submitted]
+          .forEach(value => {
+            const cell = document.createElement('td');
+            cell.textContent = String(value ?? '');
+            row.appendChild(cell);
+          });
+        rows.appendChild(row);
+      });
+    }
+
+    searchInput.addEventListener('input', renderProfiles);
+    document.getElementById('refresh-button').addEventListener('click', loadProfiles);
+    document.getElementById('logout-button').addEventListener('click', async () => {
+      await client.auth.signOut();
+      profiles = [];
+      rows.replaceChildren();
+    });
+  </script>
+</body>
+</html>
