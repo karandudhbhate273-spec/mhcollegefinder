@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Primary SEO Meta Tags -->
+  <title>MhCollegeFinder - Maharashtra Engineering College Directory</title>
+  <meta name="title" content="MhCollegeFinder - Maharashtra Engineering College Directory">
+  <meta name="description" content="Browse Maharashtra B.E./B.Tech CAP institutes by name, institute code, and region. Add your MHT-CET and HSC profile to narrow your college search.">
+  <meta name="keywords" content="mhcollegefinder, mh college finder, maharashtra college finder, mht cet college predictor 2026, sebc cutoff maharashtra, female quota engineering cutoff, 12th pass college finder maharashtra">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mhcollegefinder.vercel.app/">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <!-- Embedded Stylesheet for Instant Standalone Performance -->
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: rgba(17, 24, 39, 0.7);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --accent-cyan: #22d3ee;
+      --accent-pink: #ec4899;
+      --accent-glow: rgba(34, 211, 238, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar {
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .logo-text span {
+      color: var(--accent-cyan);
+    }
+
+    .nav-badges {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .badge-tag {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.025em;
+    }
+
+    .hero-title highlight {
+      background: linear-gradient(to right, var(--accent-cyan), var(--accent-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    /* App Layout */
+    .app-layout {
+      max-width: 1400px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 2rem;
+      width: 100%;
+    }
+
+    @media (max-width: 1024px) {
+      .app-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .app-layout > * {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .navbar-container {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 0.85rem 1rem;
+      }
+
+      .nav-badges {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .app-layout {
+        padding: 0 1rem;
+      }
+
+      .glass-panel {
+        padding: 1rem;
+      }
+
+      .college-card {
+        padding: 1rem;
+      }
+    }
+
+    .glass-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      backdrop-filter: blur(16px);
+      padding: 1.5rem;
+    }
+
+    /* Form Styles */
+    .form-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-header-icon {
+      font-size: 1.5rem;
+      background: rgba(34, 211, 238, 0.1);
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-control {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 0.65rem 0.85rem;
+      color: white;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    select.form-control option {
+      background: #0f172a;
+      color: white;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+      color: #000;
+      font-weight: 700;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .privacy-note {
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      line-height: 1.45;
+      margin: 0.25rem 0 0.75rem;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text-main);
+      color: var(--text-main);
+    }
+
+    /* Results Area */
+    .search-filter-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .results-title-group h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .results-count {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* College Cards */
+    .college-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .college-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .college-card:hover {
+      border-color: rgba(34, 211, 238, 0.4);
+    }
+
+    .college-info h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .college-info {
+      flex: 1 1 12rem;
+      min-width: 0;
+    }
+
+    .college-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .college-meta span {
+      overflow-wrap: anywhere;
+    }
+
+    .match-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+    }
+
+    .badge-safe { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-moderate { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-ambitious { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .cutoff-info {
+      text-align: right;
+    }
+
+    .cutoff-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .cutoff-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .institute-link {
+      display: inline-block;
+      margin-top: 0.5rem;
+      color: var(--accent-cyan);
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+
+    .institute-link:hover,
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .empty-state {
+      color: var(--text-muted);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .cutoff-fit {
+      display: inline-block;
+      border: 1px solid var(--border-color);
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.45rem;
+    }
+
+    .fit-above { color: #34d399; border-color: rgba(52, 211, 153, 0.35); }
+    .fit-near { color: #fbbf24; border-color: rgba(251, 191, 36, 0.35); }
+    .fit-below { color: #f87171; border-color: rgba(248, 113, 113, 0.35); }
+
+    .branch-details {
+      border-top: 1px solid var(--border-color);
+      flex: 1 0 100%;
+      min-width: 0;
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+    }
+
+    .branch-details summary {
+      color: var(--accent-cyan);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .branch-list {
+      display: grid;
+      gap: 0.65rem;
+      list-style: none;
+      margin-top: 0.75rem;
+    }
+
+    .branch-item {
+      border-left: 2px solid rgba(34, 211, 238, 0.45);
+      padding-left: 0.75rem;
+    }
+
+    .branch-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .branch-cutoff {
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      line-height: 1.45;
+      margin-top: 0.2rem;
+      overflow-wrap: anywhere;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    footer a {
+      color: var(--accent-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Navbar -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <a href="#" class="logo">
+        <div class="logo-text">Mh<span>CollegeFinder</span></div>
+      </a>
+      <div class="nav-badges">
+        <span class="badge-tag">Maharashtra CAP 2026–27</span>
+        <span class="badge-tag">387 participating institutes</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1 class="hero-title">Maharashtra Engineering College Directory</h1>
+    <p class="hero-subtitle">Search the official 2026–27 CAP institute list for first-year B.E./B.Tech admissions by name, code, or region.</p>
+  </section>
+
+  <!-- Main App Layout -->
+  <main class="app-layout">
+    
+    <!-- Sidebar / Student Predictor Input Form -->
+    <aside class="form-sidebar">
+      <div class="glass-panel form-card">
+        <div class="form-header">
+          <div class="form-header-icon">🎯</div>
+          <div>
+            <h3>Student Profile</h3>
+            <p style="font-size: 0.78rem; color: var(--text-muted);">Choose a preferred region to filter results</p>
+          </div>
+        </div>
+
+        <form id="predictor-form">
+          <div class="form-group">
+            <label for="student-name">Student Name</label>
+            <input type="text" id="student-name" class="form-control" placeholder="Enter student full name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="student-phone">Mobile Number</label>
+            <input type="tel" id="student-phone" class="form-control" placeholder="10-digit mobile number" inputmode="numeric" pattern="[6-9][0-9]{9}" maxlength="10" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="board-percentage">12th Board Percentage</label>
+              <input type="number" id="board-percentage" class="form-control" placeholder="e.g. 85.5" step="0.01" min="0" max="100" required>
+            </div>
+            <div class="form-group">
+              <label for="cet-percentile">MHT-CET Percentile</label>
+              <input type="number" id="cet-percentile" class="form-control" placeholder="e.g. 92.40" step="0.01" min="0" max="100" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="caste-category">Caste Category</label>
+              <select id="caste-category" class="form-control" required>
+                <option value="OPEN">Open</option>
+                <option value="EWS">EWS</option>
+                <option value="SEBC">SEBC</option>
+                <option value="OBC">OBC</option>
+                <option value="ST">ST</option>
+                <option value="SC">SC</option>
+                <option value="TFWS">TFWS</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="student-gender">Gender</label>
+              <select id="student-gender" class="form-control" required>
+                <option value="">Select gender</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="target-region">Preferred Region</label>
+            <select id="target-region" class="form-control">
+              <option value="All">All Maharashtra</option>
+              <option value="Amravati">Amravati Division</option>
+              <option value="Chhatrapati Sambhajinagar">Chhatrapati Sambhajinagar Division</option>
+              <option value="Mumbai">Mumbai Division</option>
+              <option value="Nagpur">Nagpur Division</option>
+              <option value="Nashik">Nashik Division</option>
+              <option value="Pune">Pune Division</option>
+            </select>
+          </div>
+
+          <p class="privacy-note">Your details stay in this browser. CET percentile, category, gender, and region are compared with CAP-IV cutoffs; this is a historical guide, not an admission guarantee. Board percentage is not used yet.</p>
+          <button type="submit" class="btn-primary" id="btn-predict">
+            <span>Browse Colleges</span>
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Main Content Area: Search, Filters & College List -->
+    <section class="results-area">
+
+      <!-- Filter Panel -->
+      <div class="glass-panel search-filter-box">
+        <div class="form-group" style="margin: 0;">
+          <label for="division-filter">Region</label>
+          <select id="division-filter" class="form-control">
+            <option value="All">All Divisions</option>
+            <option value="Amravati">Amravati Division</option>
+            <option value="Chhatrapati Sambhajinagar">Chhatrapati Sambhajinagar Division</option>
+            <option value="Pune">Pune Division</option>
+            <option value="Mumbai">Mumbai Division</option>
+            <option value="Nagpur">Nagpur Division</option>
+            <option value="Nashik">Nashik Division</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin: 0;">
+          <label for="search-input">Search institute name or code</label>
+          <input type="search" id="search-input" class="form-control" placeholder="Search COEP, PICT, or 16006...">
+        </div>
+      </div>
+
+      <!-- Results Header -->
+      <div class="results-header">
+        <div class="results-title-group">
+          <h2 id="results-heading">CAP Institutes</h2>
+          <p class="results-count" id="results-count">Loading official institute directory...</p>
+        </div>
+        <div class="filter-actions">
+          <button id="btn-reset-filters" class="btn-secondary">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- College List Container -->
+      <div class="college-list" id="college-list">
+        <!-- Dynamically populated by JS -->
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>Sources: <a href="https://fe2026.mahacet.org/StaticPages/frmInstituteList.aspx?did=1884" target="_blank" rel="noopener noreferrer">CET Cell institute list</a> and <a href="https://cappublicdocs2026.blob.core.windows.net/documents/2026ENGG_CAP4_MH_CutOff.pdf" target="_blank" rel="noopener noreferrer">CAP Round IV Maharashtra cutoffs</a>. Historical cutoffs are guidance, not admission guarantees.</p>
+  </footer>
+
+  <!-- Application Script Engine -->
+  <script>
+    let collegesData = [];
+    let studentProfile = null;
+    async function loadColleges() {
+      const container = document.getElementById('college-list');
+      try {
+        const response = await fetch('./colleges.json');
+        if (!response.ok) throw new Error('Directory data could not be loaded.');
+        collegesData = await response.json();
+        filterResults();
+      } catch (error) {
+        container.innerHTML = '<div class="glass-panel empty-state">The college directory could not be loaded. Open this site using a local web server, then try again.</div>';
+        document.getElementById('results-count').textContent = 'Directory unavailable';
+      }
+    }
+
+    function getAssessment(course) {
+      if (!studentProfile) return null;
+      const cutoffOptions = course.cutoffs?.[studentProfile.category];
+      if (!cutoffOptions) return null;
+      const useLadiesCutoff = studentProfile.gender === 'Female' && cutoffOptions.female !== undefined;
+      const cutoff = useLadiesCutoff ? cutoffOptions.female : cutoffOptions.general;
+      if (cutoff === undefined) return null;
+      return {
+        cutoff,
+        difference: studentProfile.percentile - cutoff,
+        seatType: useLadiesCutoff ? 'Ladies' : 'General'
+      };
+    }
+
+    function compareAssessments(first, second) {
+      const firstTier = !first ? 2 : first.difference >= 0 ? 0 : 1;
+      const secondTier = !second ? 2 : second.difference >= 0 ? 0 : 1;
+      if (firstTier !== secondTier) return firstTier - secondTier;
+      if (firstTier === 0) return second.difference - first.difference;
+      return (second?.difference ?? -Infinity) - (first?.difference ?? -Infinity);
+    }
+
+    function getBestAssessment(courses) {
+      return courses
+        .map(course => getAssessment(course))
+        .filter(Boolean)
+        .sort(compareAssessments)[0] || null;
+    }
+
+    function getFitLabel(assessment) {
+      if (!assessment) return 'No selected-category cutoff';
+      if (assessment.difference >= 0) return 'At/above CAP-IV cutoff';
+      if (assessment.difference >= -3) return 'Near CAP-IV cutoff';
+      return 'Below CAP-IV cutoff';
+    }
+
+    function getFitClass(assessment) {
+      if (!assessment) return '';
+      if (assessment.difference >= 0) return 'fit-above';
+      if (assessment.difference >= -3) return 'fit-near';
+      return 'fit-below';
+    }
+
+    function getCutoffSummary(course) {
+      const summaries = [];
+      Object.entries(course.cutoffs || {}).forEach(([category, seatTypes]) => {
+        Object.entries(seatTypes).forEach(([seatType, percentile]) => {
+          const seatLabel = seatType === 'female' ? 'ladies' : 'general';
+          summaries.push(`${category} ${seatLabel}: ${percentile.toFixed(2)}`);
+        });
+      });
+      return summaries.length ? `CAP-IV cutoffs (%ile): ${summaries.join(' · ')}` : 'No State Level cutoff published for CAP-IV';
+    }
+
+    function renderColleges(results, query) {
+      const container = document.getElementById('college-list');
+      const countEl = document.getElementById('results-count');
+      container.replaceChildren();
+      countEl.textContent = studentProfile
+        ? `Showing ${results.length} institutes, ranked by selected-category CAP-IV cutoff fit. Historical cutoffs are not guarantees.`
+        : `Showing ${results.length} of ${collegesData.length} CAP institutes`;
+
+      if (results.length === 0) {
+        container.innerHTML = '<div class="glass-panel empty-state">No institutes match those filters. Try another name, code, or region.</div>';
+        return;
+      }
+
+      results.forEach(({ college, courses }) => {
+        const card = document.createElement('article');
+        card.className = 'college-card';
+        const info = document.createElement('div');
+        info.className = 'college-info';
+        const name = document.createElement('h3');
+        name.textContent = college.name;
+        const meta = document.createElement('div');
+        meta.className = 'college-meta';
+        const region = document.createElement('span');
+        region.textContent = college.region + ' Division';
+        const code = document.createElement('span');
+        code.textContent = 'CAP code ' + college.id;
+        const status = document.createElement('span');
+        status.textContent = college.status;
+        meta.append(region, code, status);
+        info.append(name, meta);
+
+        const bestCourse = courses
+          .map(course => ({ course, assessment: getAssessment(course) }))
+          .filter(result => result.assessment !== null)
+          .sort((first, second) => compareAssessments(first.assessment, second.assessment))[0];
+        if (studentProfile && bestCourse) {
+          const bestMatch = document.createElement('span');
+          bestMatch.className = `cutoff-fit ${getFitClass(bestCourse.assessment)}`.trim();
+          const difference = bestCourse.assessment.difference;
+          const margin = difference >= 0
+            ? `${difference.toFixed(2)} above`
+            : `${Math.abs(difference).toFixed(2)} below`;
+          bestMatch.textContent = `${getFitLabel(bestCourse.assessment)} · ${bestCourse.course.name} · ${bestCourse.assessment.cutoff.toFixed(2)}%ile (${margin})`;
+          info.appendChild(bestMatch);
+        } else if (studentProfile) {
+          const noMatch = document.createElement('span');
+          noMatch.className = 'results-count';
+          noMatch.textContent = 'No selected-category CAP-IV cutoff match';
+          info.appendChild(noMatch);
+        } else {
+          const branchCount = document.createElement('span');
+          branchCount.className = 'results-count';
+          branchCount.textContent = `${college.courses.length} B.E./B.Tech branches`;
+          info.appendChild(branchCount);
+        }
+
+        const intake = document.createElement('div');
+        intake.className = 'cutoff-info';
+        const intakeValue = document.createElement('div');
+        intakeValue.className = 'cutoff-value';
+        intakeValue.textContent = college.intake.toLocaleString('en-IN');
+        const intakeLabel = document.createElement('div');
+        intakeLabel.className = 'cutoff-label';
+        intakeLabel.textContent = 'Total intake';
+        const detailLink = document.createElement('a');
+        detailLink.className = 'institute-link';
+        detailLink.href = `https://fe2026.mahacet.org/StaticPages/frmInstituteSummary.aspx?InstituteCode=${encodeURIComponent(college.id)}`;
+        detailLink.target = '_blank';
+        detailLink.rel = 'noopener noreferrer';
+        detailLink.textContent = 'CAP details';
+        intake.append(intakeValue, intakeLabel, detailLink);
+
+        const branchDetails = document.createElement('details');
+        branchDetails.className = 'branch-details';
+        branchDetails.open = query.length > 0;
+        const branchSummary = document.createElement('summary');
+        branchSummary.textContent = `Branches (${courses.length})`;
+        const branchList = document.createElement('ul');
+        branchList.className = 'branch-list';
+        courses.forEach(course => {
+          const branch = document.createElement('li');
+          branch.className = 'branch-item';
+          const branchName = document.createElement('div');
+          branchName.className = 'branch-name';
+          branchName.textContent = course.name;
+          const branchCutoff = document.createElement('div');
+          branchCutoff.className = 'branch-cutoff';
+          const assessment = getAssessment(course);
+          if (studentProfile && assessment) {
+            const relation = assessment.difference >= 0
+              ? `${assessment.difference.toFixed(2)} above`
+              : `${Math.abs(assessment.difference).toFixed(2)} below`;
+            branchCutoff.textContent = `${studentProfile.category} ${assessment.seatType} CAP-IV cutoff: ${assessment.cutoff.toFixed(2)}%ile · ${relation} your percentile`;
+          } else if (studentProfile) {
+            branchCutoff.textContent = 'No selected-category CAP-IV cutoff published for this branch';
+          } else {
+            branchCutoff.textContent = getCutoffSummary(course);
+          }
+          branch.append(branchName, branchCutoff);
+          branchList.appendChild(branch);
+        });
+        branchDetails.append(branchSummary, branchList);
+        card.append(info, intake, branchDetails);
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById('predictor-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      studentProfile = {
+        percentile: Number(document.getElementById('cet-percentile').value),
+        category: document.getElementById('caste-category').value,
+        gender: document.getElementById('student-gender').value
+      };
+      document.getElementById('division-filter').value = document.getElementById('target-region').value;
+      document.getElementById('results-heading').textContent = 'Best CAP Cutoff Matches';
+      filterResults();
+      document.getElementById('college-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    document.getElementById('search-input').addEventListener('input', filterResults);
+    document.getElementById('division-filter').addEventListener('change', filterResults);
+
+    function filterResults() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const division = document.getElementById('division-filter').value;
+      const filtered = collegesData.map(college => {
+        const instituteMatch = college.name.toLowerCase().includes(query) || college.id.includes(query);
+        const matchingCourses = college.courses.filter(course => course.name.toLowerCase().includes(query));
+        const matchesRegion = division === 'All' || college.region === division;
+        if (!matchesRegion || (query && !instituteMatch && matchingCourses.length === 0)) return null;
+        return { college, courses: query && !instituteMatch ? matchingCourses : college.courses };
+      }).filter(Boolean);
+      if (studentProfile) {
+        filtered.sort((first, second) => compareAssessments(
+          getBestAssessment(first.courses),
+          getBestAssessment(second.courses)
+        ));
+      }
+      renderColleges(filtered, query);
+    }
+
+    document.getElementById('btn-reset-filters').addEventListener('click', () => {
+      document.getElementById('predictor-form').reset();
+      document.getElementById('search-input').value = '';
+      document.getElementById('division-filter').value = 'All';
+      studentProfile = null;
+      document.getElementById('results-heading').textContent = 'CAP Institutes';
+      filterResults();
+    });
+
+    loadColleges();
+  </script>
+</body>
+</html>
